@@ -1,4 +1,74 @@
-# fizz-buzz-taskscheduler
+# Task Scheduler
+
+## How it works
+
+This task scheduler runs in `master` or `slave` mode to scale horizontally. Both master and slave do this things:
+
+- API Interface
+- Act as Worker to process tasks
+
+While only master accomplish this other things:
+
+- Store tasks and workers in SQLite DB (it's instantiated in /tmp)
+- Run the scheduler in order to execute tasks in the right time
+- Distribute jobs across the workers network, depending on availability
+- Collect tasks that are coming from the slaves API interface
+
+## Quick Start
+
+Two args are expected: `{network_address}` and `{master|slave}`.
+
+```
+./target/release/fizzbuzz-task-scheduler {network_address} {master|slave}
+```
+
+Example: `cargo build --release && ./target/release/fizzbuzz-task-scheduler 127.0.0.1:8080 master`
+
+## API Interface
+
+### Set Task
+
+```bash
+curl -X "POST" "http://127.0.0.1:8081/task/set" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+  "kind": "FizzBuzz",
+  "when": 1669369358
+}'
+```
+
+### List Tasks
+
+```bash
+curl "http://127.0.0.1:8080/task?status=Completed" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+  "kind": "FizzBuzz",
+  "when": 1003
+}'
+```
+
+### Get Single task
+
+```bash
+curl "http://127.0.0.1:8080/task/T1QfaGU8DBQCfEYR?status=Pending" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+  "kind": "FizzBuzz",
+  "when": 1003
+}'
+```
+
+### Delete single task
+
+```bash
+curl -X "POST" "http://127.0.0.1:8080/task/delete/jZSmtAe81ng40nZG?status=Pending" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+  "kind": "FizzBuzz",
+  "when": 1003
+}'
+```
 
 ## Assignment
 
